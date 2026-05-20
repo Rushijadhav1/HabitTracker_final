@@ -13,12 +13,11 @@ type Context = {
     toggleHabit: (id: string, dtae: Date) => void
 }
 
-
 export const HabitContext = createContext<null | Context>(null)
 
 export function useHabits() {
     const habitContext = useContext(HabitContext)
     if (habitContext == null) throw new Error("null context")
 
-    return habitContext
+return habitContext
 }

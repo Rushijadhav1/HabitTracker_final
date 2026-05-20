@@ -7,10 +7,10 @@ export function useLocalStorage<T>(key: string, initialvalue: T){
         const item = localStorage.getItem(key)
         if (item == null) return initialvalue
 
-        return JSON.parse(item, dateReviver )
-    } catch{
-           return initialvalue
-    }
+    return JSON.parse(item, dateReviver )
+} catch{
+       return initialvalue
+}
  } )
  useEffect(() => {
     localStorage.setItem(key, JSON.stringify(storedValue))
@@ -25,5 +25,5 @@ function dateReviver(_key: string, value: unknown){
         return parseISO(value)
     }
 
-    return value
+return value
 }
