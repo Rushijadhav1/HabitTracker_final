@@ -47,7 +47,7 @@ function HabitItem({ habit, visibleDates }: HabitItemProps) {
   const { deleteHabit, toggleHabit } = useHabits()
   const habitId = String(habit.id)
 
-  // Current streak
+  // Current streck
   const currentStreak = getCurrentStreak(habit.completion)
 
   // Best / Last streak
