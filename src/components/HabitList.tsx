@@ -45,81 +45,76 @@ type HabitItemProps = {
 
 function HabitItem({ habit, visibleDates }: HabitItemProps) {
   const { deleteHabit, toggleHabit } = useHabits()
+  const habitId = String(habit.id)
 
-  // Current streak
+  // Current streck
   const currentStreak = getCurrentStreak(habit.completion)
 
-  // Best streak
+  // Best / Last streak
   const bestStreak = getBestStreak(habit.completion)
 
-  // Monthly count
+  // Monthly completed count
   const monthlyCount = getMonthlyCount(habit.completion)
 
   return (
     <div className="rounded-xl bg-zinc-800 p-4 flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-2">
-          {/* Habit Name */}
-          <span className="font-medium text-white text-lg">
+          <span className="font-medium text-white">
             {habit.name}
           </span>
 
-          {/* Stats */}
-          <div className="flex flex-wrap gap-3 text-sm">
-            {/* Current Streak */}
-            <span className="text-amber-400">
-              🔥 Current: {currentStreak} Day
-              {currentStreak !== 1 ? "s" : ""}
-            </span>
+      <div className="flex flex-wrap gap-3 text-sm">
+        {/* Current Streak */}
+        <span className="text-amber-400">
+          🔥 Current: {currentStreak} Day
+          {currentStreak !== 1 ? "s" : ""}
+        </span>
 
-            {/* Best Streak */}
-            <span className="text-pink-400">
-              🏆 Best: {bestStreak} Day
-              {bestStreak !== 1 ? "s" : ""}
-            </span>
+        {/* Best Streak */}
+        <span className="text-pink-400">
+          🏆 Best: {bestStreak} Day
+          {bestStreak !== 1 ? "s" : ""}
+        </span>
 
-            {/* Monthly Count */}
-            <span className="text-green-400">
-              ✅ {monthlyCount} Days This Month
-            </span>
-          </div>
-        </div>
-
-        {/* Delete Button */}
-        <Button
-          onClick={() => deleteHabit(habitId)}
-          variant="ghost-destructive"
-          className="text-sm"
-        >
-          Delete
-        </Button>
+        {/* Monthly Count */}
+        <span className="text-green-400">
+          ✅ {monthlyCount} Days This Month
+        </span>
       </div>
-
-      {/* Date Buttons */}
-     <div className="flex gap-1.5">
-  {visibleDates.map((date) => (
-    <Button
-      key={date.toISOString()}
-      disabled={isFuture(date)}
-      onClick={() => toggleHabit(habitId, date)}
-      className="flex flex-1 flex-col items-center gap-0.5 rounded-lg"
-      variant={
-        habit.completion.some((d) =>
-          isSameDay(d, date)
-        )
-          ? "primary"
-          : "secondary"
-      }
-    >
-      <span className="font-medium">
-        {format(date, "EEE")}
-      </span>
-
-      <span>{format(date, "d")}</span>
-    </Button>
-  ))}
-</div>
     </div>
+
+    <Button
+      onClick={() => deleteHabit(habitId)}
+      variant="ghost-destructive"
+      className="text-sm"
+    >
+      Delete
+    </Button>
+  </div>
+
+  <div className="flex gap-1.5">
+    {visibleDates.map((date) => (
+      <Button
+        className="flex flex-1 flex-col items-center gap-0.5 rounded-lg"
+        key={date.toISOString()}
+        disabled={isFuture(date)}
+        onClick={() => toggleHabit(habitId, date)}
+        variant={
+          habit.completion.some((d) => isSameDay(date, d))
+            ? "primary"
+            : "secondary"
+        }
+      >
+        <span className="font-medium">
+          {format(date, "EEE")}
+        </span>
+
+        <span>{format(date, "d")}</span>
+      </Button>
+    ))}
+  </div>
+</div>
   )
 }
 
@@ -129,11 +124,7 @@ function getCurrentStreak(completion: Date[]) {
   let streak = 0
   let date = new Date()
 
-  while (
-    completion.some((c) =>
-      isSameDay(new Date(c), date)
-    )
-  ) {
+  while (completion.some((c) => isSameDay(c, date))) {
     streak++
     date = subDays(date, 1)
   }
@@ -141,12 +132,14 @@ function getCurrentStreak(completion: Date[]) {
   return streak
 }
 
+/* ---------------- BEST STREAK ---------------- */
+
 function getBestStreak(completion: Date[]) {
   if (completion.length === 0) return 0
 
-  const sortedDates = completion
-    .map((date) => new Date(date))
-    .sort((a, b) => a.getTime() - b.getTime())
+  const sortedDates = [...completion].sort(
+    (a, b) => a.getTime() - b.getTime()
+  )
 
   let best = 1
   let current = 1
@@ -155,21 +148,25 @@ function getBestStreak(completion: Date[]) {
     const prev = sortedDates[i - 1]
     const curr = sortedDates[i]
 
-    if (isSameDay(subDays(curr, 1), prev)) {
-      current++
-      best = Math.max(best, current)
-    } else {
-      current = 1
-    }
+const previousDay = subDays(curr, 1)
+
+if (isSameDay(previousDay, prev)) {
+  current++
+  best = Math.max(best, current)
+} else {
+  current = 1
+}
   }
 
   return best
 }
 
+/* ---------------- MONTHLY COUNT ---------------- */
+
 function getMonthlyCount(completion: Date[]) {
   const today = new Date()
 
   return completion.filter((date) =>
-    isSameMonth(new Date(date), today)
+    isSameMonth(date, today)
   ).length
 }

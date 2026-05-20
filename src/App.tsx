@@ -1,9 +1,10 @@
 import { Header } from "./components/Header"
-import { Habitform } from "./components/Habitform"
+
 import { HabitList } from "./components/HabitList"
 import { HabitProvider } from "./context/HabitProvider"
 import { addWeeks, eachDayOfInterval, endOfWeek, startOfWeek } from "date-fns"
 import { useState } from "react"
+import { Habitform } from "./components/Habitform"
 
 export default function App() {
   const [weekOffset, setWeekOffset] = useState(0)
